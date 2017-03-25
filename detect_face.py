@@ -1,6 +1,8 @@
 import cv2
 import sys
 
+# https://realpython.com/blog/python/face-recognition-with-python/
+
 # Get user supplied values
 imagePath = '1.jpg' 
 cascPath = 'haarcascade_frontalface_default.xml'
