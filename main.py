@@ -94,23 +94,20 @@ h, s, v = rgb_to_hsv(r, g, b)
 
 print 'transform'
 ####
-h1 = np.copy(h)
-s1 = np.copy(s)
-v1 = np.copy(v)
 l1, r2 = 15., 100.  
 f = (h * 360 > l1) & (h * 360 < r2) & mask_mouth
 
 f_blured = (1 - gaussian_filter(f.astype(float), sigma=5))    
-s1 *= f_blured
+s *= f_blured
 v_max = 250
-v1 = v_max - (v_max - v1) * (1 - gaussian_filter(f.astype(float), sigma=5) * 0.3)
+v = v_max - (v_max - v) * (1 - gaussian_filter(f.astype(float), sigma=5) * 0.3)
 ###
 
 #plt.imshow(f, interpolation='nearest', cmap = 'bone')
 #plt.figure()
 #plt.imshow(gaussian_filter(f.astype(float), sigma=10), interpolation='nearest', cmap = 'bone')
 print 'to rgb'
-r, g, b = hsv_to_rgb(h1, s1, v1)
+r, g, b = hsv_to_rgb(h, s, v)
 arr = np.dstack((r, g, b, a))
 new_img = Image.fromarray(arr.astype('uint8'), 'RGBA')
 new_img.save(save_path)
