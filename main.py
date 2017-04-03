@@ -40,22 +40,21 @@ rot['mouthLeft']['y'] = round(rot['mouthLeft']['y'])
 rot['underLipBottom']['x'] = round(rot['underLipBottom']['x'])
 rot['underLipBottom']['y'] = round(rot['underLipBottom']['y'])
 
-# контрольный вывод
-print(rot['mouthRight']['x'])
-print(rot['mouthRight']['y'])
-print(rot['upperLipBottom']['x'])
-print(rot['upperLipBottom']['y'])
-print(rot['mouthLeft']['x'])
-print(rot['mouthLeft']['y'])
-print(rot['underLipBottom']['x'])
-print(rot['underLipBottom']['y'])
-
 print 'creating mask'
 # создание полигона
-poly = shapely.geometry.Polygon([(rot['mouthRight']['x'],rot['mouthRight']['y']),
- (rot['upperLipBottom']['x'],rot['upperLipBottom']['y']),
- (rot['mouthLeft']['x'],rot['mouthLeft']['y']),
- (rot['underLipBottom']['x'],rot['underLipBottom']['y'])])
+right, top, left, bottom = map(np.array, [
+    (rot['mouthRight']['x'],rot['mouthRight']['y']),
+    (rot['upperLipBottom']['x'],rot['upperLipBottom']['y']),
+    (rot['mouthLeft']['x'],rot['mouthLeft']['y']),
+    (rot['underLipBottom']['x'],rot['underLipBottom']['y'])])
+
+vertex = [left, top, right, 
+    (right[0]*0.5 + bottom[0] * 0.5, right[1] * 0.3 + bottom[1] * 0.7),
+    bottom,
+    (left[0]*0.5 + bottom[0] * 0.5, left[1] * 0.3 + bottom[1] * 0.7),
+    ]
+
+poly = shapely.geometry.Polygon(vertex)
 
 #Определение размеров изображения
 image = PIL.Image.open(img_path) # it will be used later
@@ -63,16 +62,26 @@ print 'Image size:', image.size
 width, height = image.size
 size = (height, width)
 
+min_x = int(min(zip(*vertex)[0]))
+max_x = int(max(zip(*vertex)[0]))
+min_y = int(min(zip(*vertex)[1]))
+max_y = int(max(zip(*vertex)[1]))
+print 'min_x', min_x
+print 'max_x', max_x
+print 'min_y', min_y
+print 'max_y', max_y
+
 
 # создание маски
 mask_mouth = np.zeros(size).astype(bool)
-for i in range(mask_mouth.shape[0]):
-    for j in range(mask_mouth.shape[1]):
+for i in range(min_y, max_y + 1):
+    for j in range(min_x, max_x + 1):
         point = shapely.geometry.Point(j, i)
         mask_mouth[i, j] = point.intersects(poly)
 
+#plt.imshow(mask_mouth, interpolation='nearest', cmap = 'bone')
+#plt.show()
 
-##
 print 'mask is done'
 rgb_to_hsv = np.vectorize(colorsys.rgb_to_hsv)
 hsv_to_rgb = np.vectorize(colorsys.hsv_to_rgb)
@@ -88,7 +97,7 @@ print 'transform'
 h1 = np.copy(h)
 s1 = np.copy(s)
 v1 = np.copy(v)
-l1, l2, r1, r2 = 15., 20., 95., 100.  
+l1, r2 = 15., 100.  
 f = (h * 360 > l1) & (h * 360 < r2) & mask_mouth
 
 f_blured = (1 - gaussian_filter(f.astype(float), sigma=5))    
