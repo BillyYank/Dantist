@@ -32,7 +32,7 @@ size = (height, width)
 mask_mouth = np.zeros(size).astype(bool)
 
 for index in range(len(result)):
-    print 'face {} of {}'.format(index + 1, len(result)) 
+    print 'face {} of {}'.format(index + 1, len(result))
 # создание словаря rot
     rot = {'mouthRight':result[index]['faceLandmarks']['mouthRight'],       # правый край рта
     'mouthLeft':result[index]['faceLandmarks']['mouthLeft'],           # левый край рта
@@ -57,7 +57,7 @@ for index in range(len(result)):
         (rot['mouthLeft']['x'],rot['mouthLeft']['y']),
         (rot['underLipBottom']['x'],rot['underLipBottom']['y'])])
 
-    vertex = [left, top, right, 
+    vertex = [left, top, right,
         (right[0]*0.5 + bottom[0] * 0.5, right[1] * 0.3 + bottom[1] * 0.7),
         bottom,
         (left[0]*0.5 + bottom[0] * 0.5, left[1] * 0.3 + bottom[1] * 0.7),
@@ -95,10 +95,10 @@ h, s, v = rgb_to_hsv(r, g, b)
 
 print 'transform'
 ####
-l1, r2 = 15., 100.  
+l1, r2 = 15., 100.
 f = (h * 360 > l1) & (h * 360 < r2) & mask_mouth
 
-f_blured = (1 - gaussian_filter(f.astype(float), sigma=5))    
+f_blured = (1 - gaussian_filter(f.astype(float), sigma=5))
 s *= f_blured
 v_max = 250
 v = v_max - (v_max - v) * (1 - gaussian_filter(f.astype(float), sigma=5) * 0.3)
@@ -113,3 +113,5 @@ arr = np.dstack((r, g, b, a))
 new_img = Image.fromarray(arr.astype('uint8'), 'RGBA')
 new_img.save(save_path)
 print 'done'
+
+kkk
